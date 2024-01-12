@@ -1,0 +1,27 @@
+<!-- activities_partial.html -->
+{% load humanize %}
+<table class="table">
+  <thead>
+    <tr style="background-color: #D8ECEF;">
+      <th>Ride Date</th>
+      <th>Elapsed Time</th>
+      <th>Distance (Miles)</th>
+      <th>Elevation Gain (Feet)</th>
+      <th>Normalized Power (Watts)</th>
+      <th>Max Speed (MPH)</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for activity in activities %}
+      <tr>
+        <td><a href="{% url 'activity_details' activity.id %}">{{ activity.ride_date|date:"F d, Y" }}</a></td>
+        <td>{{ activity.total_elapsed_time }}</td>
+        <td>{{ activity.distance|floatformat:2 }}</td>
+        <td>{{ activity.elevation_gain|floatformat:0|intcomma }}</td>
+        <td>{{ activity.np_power|floatformat:0 }}</td>
+        <td>{{ activity.max_speed|floatformat:0 }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

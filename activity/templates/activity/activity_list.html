@@ -1,0 +1,94 @@
+{% extends "activity/layout.html" %}
+{% load humanize %}
+{% block body %}
+
+{% include 'activity/messages.html' %}
+
+
+
+  <div class="container">
+
+   <div>
+     <br>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadModal" id="uploadRide">
+        Upload a ride
+      </button>
+     <br>
+    </div>
+
+      <!-- Alert box placeholder outside the modal -->
+    <div id="uploadSuccessAlert" class="alert alert-success" style="display: none;">
+      <strong>Success!</strong> Activity uploaded successfully.
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="uploadModalLabel">Upload an activity</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+
+            <!-- Upload form -->
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeModalButton">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div class="container">
+    <br>
+    <div id="calendar"></div>
+
+  </div>
+
+ <script>
+    $(document).ready(function() {
+      $('#uploadModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var activityId = button.data('activity-id');
+        console.log(activityId);
+
+        // Update the hidden input value with the current activity ID
+        $('#activity-id').val(activityId);
+      });
+
+      $('#calendar').fullCalendar({
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,basicWeek,basicDay'
+        },
+        editable: false,
+        events: [
+          {% for activity in activities %}
+            {% if activity.user == user %}
+              {
+                title: '{{ activity.total_elapsed_time }}',
+                start: '{{ activity.ride_date|date:"Y-m-d" }}',
+                url: '{% url 'activity_details' activity.id %}'
+              },
+            {% endif %}
+          {% endfor %}
+        ]
+      });
+    });
+  </script>
+
+
+{% endblock %}

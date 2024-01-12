@@ -1,0 +1,81 @@
+{% extends "activity/layout.html" %}
+{% load humanize %}
+{% block body %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+      $(document).ready(function(){
+        // Define the change event handler first
+        $("#timeframe-selector").change(function(){
+          var selectedTimeframe = $(this).val();
+
+          // Proceed with the AJAX request for other timeframes
+          $.ajax({
+            url: "{% url 'update_summary' %}",
+            type: "GET",
+            data: { timeframe: selectedTimeframe },
+            success: function(data){
+              // Update summary content
+              $("#summary-count").text(data.count);
+              $("#summary-miles").text(parseFloat(data.total_miles).toFixed(0));
+              $("#summary-elevation").text(parseFloat(data.total_elevation).toFixed(0));
+              $("#summary-power").text(data.max_power);
+
+              // Update activities table content
+              $("#activities-table").html(data.activities_html);
+            }
+          });
+        });
+
+        // Trigger change event for default selection
+        $("#timeframe-selector").val("all_time").change();
+      });
+    </script>
+    <div class="title-container">
+        <h3>My Activity Overview</h3>
+    </div>
+
+
+    <div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mt-7 no-border-card">
+                <div class="card-body">
+                    <h5 class="card-title timeSelector" id="timeSelector" style="padding: 10px;">Timeframe Selector</h5><br>
+                    <select id="timeframe-selector">
+                        <option value="all_time">All Time</option>
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select>
+                <div><br>
+                    <p><span class="material-symbols-outlined">directions_bike</span>  Total rides: <span id="summary-count"></span></p>
+                    <p><span class="material-symbols-outlined">route</span>  Total miles: <span id="summary-miles"></span> Miles</p>
+                    <p><span class="material-symbols-outlined">elevation</span>  Total elevation gain: <span id="summary-elevation"></span> Feet</p>
+                    <p><span class="material-symbols-outlined">bolt</span>  Max Power: <span id="summary-power"></span>W</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+                <div class="card-body" id="userInfo">
+                    <h5 class="card-title" style="margin-bottom: 10px; margin-top: 15px;">User Information</h5>
+                    <p class="card-text">Username: {{ user.username }}</p>
+                    <p class="card-text">Weight: {{ user.userattributes.weight|floatformat:0 }} lbs</p>
+                    <p class="card-text">FTP: {{ user.userattributes.ftp|floatformat:0 }}W</p>
+                    <p class="card-text" style="padding-bottom: 15px;">Age: {{ user_age }}</p>
+                </div>
+
+
+</div>
+
+    <div class="container">
+      <div id="activities-table">
+        {% for activity in activities %}
+        {% endfor %}
+      </div>
+    </div>
+
+{% endblock %}
